@@ -10,6 +10,12 @@
     sans-serif;
 }
 
+html, 
+body,
+:root {
+  height: 100%;
+}
+
 @layer utilities {
   .no-ring {
     @apply outline-none ring-0 ring-offset-0 focus:ring-0 focus:ring-offset-0 focus-visible:ring-offset-0 !important;
