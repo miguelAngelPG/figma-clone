@@ -15,7 +15,13 @@ export const Cursor = ({ color, x, y, message }: CursorProps) => {
             style={{ transform: `translate(${x}px, ${y}px)`}}
         >
             <CursorSVG color={color} />
-            {/* //TODO: MESSAGE */}
+            {
+                message && (
+                    <div className="absolute left-2 top-5 px-4 py-2 text-sm rounded-3xl" style={{ background: color }}>
+                        <p className="text-white whitespace-nowrap text-sm leading-relaxed">{message}</p>
+                    </div>
+                )
+            }
         </div>
     );
 };
