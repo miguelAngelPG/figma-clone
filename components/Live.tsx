@@ -23,7 +23,7 @@ const Live = ({ canvasRef, undo, redo }: Props) => {
 
     const others = useOthers();
 
-    const [{ cursor }, updateMyPresence] = useMyPresence() as any;
+    const [{ cursor }, updateMyPresence] = useMyPresence();
 
     const broadcast = useBroadcastEvent();
 
@@ -123,7 +123,7 @@ const Live = ({ canvasRef, undo, redo }: Props) => {
             },
             });
         }
-    }, [updateMyPresence]);
+    }, []);
 
     const handlePointerLeave = useCallback(() => {
         setCursorState({
@@ -235,7 +235,7 @@ const Live = ({ canvasRef, undo, redo }: Props) => {
             )}
 
             {/* Show the live cursors of other users */}
-            <LiveCursors others={others} />
+            <LiveCursors/>
 
         </ContextMenuTrigger>
 
