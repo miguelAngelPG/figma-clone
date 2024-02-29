@@ -127,49 +127,52 @@ function Live({ canvasRef }: LiveProps) {
         })
     }, [])
     return (
-        <div
-            id='canvas'
-            onPointerMove={ handlePointerMove }
-            onPointerLeave={ handlePointerLeave }
-            onPointerDown={ handlePointerDown }
-            onPointerUp={ handlePointerUp }
-            className="border-2 border-green-500 h-full w-full flex justify-center items-center text-center"
-        >
-
+        <>
             <canvas ref={ canvasRef } />
+            <div
+                id='canvas'
+                onPointerMove={ handlePointerMove }
+                onPointerLeave={ handlePointerLeave }
+                onPointerDown={ handlePointerDown }
+                onPointerUp={ handlePointerUp }
+                className="h-full w-full flex justify-center items-center text-center"
+            >
 
-            {
-                reaction.map((reaction) => (
-                    <FlyingReaction
-                        key={ reaction.timestamp.toString() }
-                        x={ reaction.point.x }
-                        y={ reaction.point.y }
-                        timestamp={ reaction.timestamp }
-                        value={ reaction.value }
-                    />
-                ))
-            }
+                
 
-            {
-                cursor && (
-                    <CursorChat 
-                        cursor={ cursor }
-                        cursorState={ cursorState }
-                        setCursorState={ setCursorState }
-                        updateMyPresence={ updateMyPresence }
-                    />
-                )
-            }
+                {
+                    reaction.map((reaction) => (
+                        <FlyingReaction
+                            key={ reaction.timestamp.toString() }
+                            x={ reaction.point.x }
+                            y={ reaction.point.y }
+                            timestamp={ reaction.timestamp }
+                            value={ reaction.value }
+                        />
+                    ))
+                }
 
-            {
-                cursorState.mode === CursorMode.ReactionSelector && (
-                    <ReactionSelector
-                        setReaction={ setReactions }
-                    />    
-                )
-            }
-            <LiveCursors others={others}/>
-        </div>
+                {
+                    cursor && (
+                        <CursorChat 
+                            cursor={ cursor }
+                            cursorState={ cursorState }
+                            setCursorState={ setCursorState }
+                            updateMyPresence={ updateMyPresence }
+                        />
+                    )
+                }
+
+                {
+                    cursorState.mode === CursorMode.ReactionSelector && (
+                        <ReactionSelector
+                            setReaction={ setReactions }
+                        />    
+                    )
+                }
+                <LiveCursors others={others}/>
+            </div>
+        </>
     )
 }
 
