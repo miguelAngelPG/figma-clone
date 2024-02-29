@@ -8,17 +8,20 @@ import Navbar from "@/components/Navbar";
 import RightSidebar from "@/components/RightSidebar";
 import { handleCanvasMouseDown, handleCanvasMouseUp, handleCanvasObjectModified, handleCanvaseMouseMove, handleResize, initializeFabric, renderCanvas } from "@/lib/canvas";
 import { ActiveElement } from "@/types/type";
-import { useMutation, useStorage } from "@/liveblocks.config";
+import { useMutation, useRedo, useStorage, useUndo } from "@/liveblocks.config";
 import { defaultNavElement } from "@/constants";
-import { handleDelete } from "@/lib/key-events";
+import { handleDelete, handleKeyDown } from "@/lib/key-events";
 
 export default function Page() {
+
+    const undo = useUndo()
+    const redo = useRedo()
 
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const fabricRef = useRef<fabric.Canvas | null>(null)
     const isDrawing = useRef(false)
     const shapeRef = useRef<fabric.Object | null>(null)
-    const selectedShapeRef = useRef<string | null>('rectangle') 
+    const selectedShapeRef = useRef<string | null>(null) 
     const activeObjectRef = useRef<fabric.Object | null>(null) 
 
     const canvasObjects = useStorage((root) => root.canvasObject)
@@ -126,6 +129,17 @@ export default function Page() {
             handleResize({  canvas: fabricRef.current })
         })
 
+        window.addEventListener('keydown', (e) => {
+            handleKeyDown({
+                e,
+                canvas: fabricRef.current,
+                undo,
+                redo,
+                syncShapeInStorage,
+                deleteShapeFromStorage
+            })
+        })
+
         return () => {
             canvas.dispose(); // Limpiar al desmontar el componente
         };
@@ -147,7 +161,7 @@ export default function Page() {
                 handleActiveElement={ handleActiveElement }
             />
             <section className="flex flex-row h-full">
-                <LeftSidebar/>
+                <LeftSidebar allShapes={Array.from(canvasObjects)}/>
                 <Live canvasRef={ canvasRef }/>
                 {/* <canvas ref={ canvasRef } className="h-full w-full" /> */}
                 <RightSidebar/>
