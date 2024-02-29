@@ -1,9 +1,52 @@
 import React from 'react'
+import Export from './settings/Export'
+import Dimensions from './settings/Dimensions'
+import Text from './settings/Text'
+import Color from './settings/Color'
+import { RightSidebarProps } from '@/types/type'
+import { modifyShape } from '@/lib/shapes'
 
-const RightSidebar = () => {
+const RightSidebar = ({
+    elementAttributes,
+    setElementAttributes,
+    fabricRef,
+    isEditingRef,
+    activeObjectRef,
+    syncShapeInStorage
+}: RightSidebarProps) => {
+
+    const handleInputChange = (property: string, value: string) => {
+        if (!isEditingRef.current) isEditingRef.current = true
+
+        setElementAttributes((prev) => ({
+            ...prev,
+            [property]: value
+        }))
+
+        modifyShape({
+            canvas: fabricRef.current as fabric.Canvas,
+            property,
+            value,
+            activeObjectRef,
+            syncShapeInStorage
+        })
+    }
+
     return (
-        <section className='flex flex-col border-t border-gray-200 bg-black text-gray-300 min-2-[227px] sticky left-0 h-full max-sm:hidden select-none overflow-y-auto pb-20'>
+        <section className='flex flex-col border-t border-gray-200 bg-black text-gray-300 min-w-[227px] sticky right-0 h-full max-sm:hidden select-none overflow-y-auto'>
             <h3 className='px-5 pt-4 text-xs uppercase'>Design</h3>
+            <span className='text-xs text-gray-300 mt-3 px-5 border-b border-gray-200 pb-4'>Make changes to canvas as you like</span>
+
+            <Dimensions
+                width={elementAttributes.width}
+                height={elementAttributes.height}
+                handleInputChange={ handleInputChange }
+                isEditingRef={ isEditingRef }
+            />
+            <Text/>
+            <Color/>
+            <Color/>
+            <Export/>
         </section>
     )
 }
