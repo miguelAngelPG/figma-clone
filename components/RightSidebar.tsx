@@ -1,74 +1,85 @@
-import React from 'react'
-import Export from './settings/Export'
-import Dimensions from './settings/Dimensions'
-import Text from './settings/Text'
-import Color from './settings/Color'
-import { RightSidebarProps } from '@/types/type'
-import { modifyShape } from '@/lib/shapes'
+import React, { useMemo, useRef } from "react";
+
+import { RightSidebarProps } from "@/types/type";
+import { bringElement, modifyShape } from "@/lib/shapes";
+
+import Text from "./settings/Text";
+import Color from "./settings/Color";
+import Export from "./settings/Export";
+import Dimensions from "./settings/Dimensions";
 
 const RightSidebar = ({
-    elementAttributes,
-    setElementAttributes,
-    fabricRef,
-    isEditingRef,
-    activeObjectRef,
-    syncShapeInStorage
+  elementAttributes,
+  setElementAttributes,
+  fabricRef,
+  activeObjectRef,
+  isEditingRef,
+  syncShapeInStorage,
 }: RightSidebarProps) => {
+  const colorInputRef = useRef(null);
+  const strokeInputRef = useRef(null);
 
-    const colorInputRef = React.useRef(null)
-    const strokeInputRef = React.useRef(null)
+  const handleInputChange = (property: string, value: string) => {
+    if (!isEditingRef.current) isEditingRef.current = true;
 
-    const handleInputChange = (property: string, value: string) => {
-        if (!isEditingRef.current) isEditingRef.current = true
+    setElementAttributes((prev) => ({ ...prev, [property]: value }));
 
-        setElementAttributes((prev) => ({
-            ...prev,
-            [property]: value
-        }))
+    modifyShape({
+      canvas: fabricRef.current as fabric.Canvas,
+      property,
+      value,
+      activeObjectRef,
+      syncShapeInStorage,
+    });
+  };
+  
+  // memoize the content of the right sidebar to avoid re-rendering on every mouse actions
+  const memoizedContent = useMemo(
+    () => (
+      <section className="flex flex-col border-t border-primary-grey-200 bg-primary-black text-primary-grey-300 min-w-[227px] sticky right-0 h-full max-sm:hidden select-none">
+        <h3 className=" px-5 pt-4 text-xs uppercase">Design</h3>
+        <span className="text-xs text-primary-grey-300 mt-3 px-5 border-b border-primary-grey-200 pb-4">
+          Make changes to canvas as you like
+        </span>
 
-        modifyShape({
-            canvas: fabricRef.current as fabric.Canvas,
-            property,
-            value,
-            activeObjectRef,
-            syncShapeInStorage
-        })
-    }
+        <Dimensions
+          isEditingRef={isEditingRef}
+          width={elementAttributes.width}
+          height={elementAttributes.height}
+          handleInputChange={handleInputChange}
+        />
 
-    return (
-        <section className='flex flex-col border-t border-gray-200 bg-black text-gray-300 min-w-[227px] sticky right-0 h-full max-sm:hidden select-none overflow-y-auto'>
-            <h3 className='px-5 pt-4 text-xs uppercase'>Design</h3>
-            <span className='text-xs text-gray-300 mt-3 px-5 border-b border-gray-200 pb-4'>Make changes to canvas as you like</span>
+        <Text
+          fontFamily={elementAttributes.fontFamily}
+          fontSize={elementAttributes.fontSize}
+          fontWeight={elementAttributes.fontWeight}
+          handleInputChange={handleInputChange}
+ 
+        />
 
-            <Dimensions
-                width={elementAttributes.width}
-                height={elementAttributes.height}
-                handleInputChange={ handleInputChange }
-                isEditingRef={ isEditingRef }
-            />
-            <Text
-                fontFamily={elementAttributes.fontFamily}
-                fontSize={elementAttributes.fontSize}
-                fontWeight={elementAttributes.fontWeight}
-                handleInputChange={ handleInputChange }
-            />
-            <Color
-                inputRef={ colorInputRef }
-                attribute={ elementAttributes.fill }
-                placeholder='Color'
-                attributeType='fill'
-                handleInputChange={ handleInputChange }
-            />
-            <Color
-                inputRef={ strokeInputRef }
-                attribute={ elementAttributes.stroke }
-                placeholder='Stroke'
-                attributeType='stroke'
-                handleInputChange={ handleInputChange }
-            />
-            <Export/>
-        </section>
-    )
-}
+        <Color
+          inputRef={colorInputRef}
+          attribute={elementAttributes.fill}
+          placeholder="color"
+          attributeType="fill"
+          handleInputChange={handleInputChange}
+        />
 
-export default RightSidebar
+        <Color
+          inputRef={strokeInputRef}
+          attribute={elementAttributes.stroke}
+          placeholder="stroke"
+          attributeType="stroke"
+          handleInputChange={handleInputChange}
+        />
+
+        <Export />
+      </section>
+    ),
+    [elementAttributes]
+  ); // only re-render when elementAttributes changes
+
+  return memoizedContent;
+};
+
+export default RightSidebar;
