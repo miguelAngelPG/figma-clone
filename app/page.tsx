@@ -6,8 +6,9 @@ import LeftSidebar from "@/components/LeftSidebar";
 import Live from "@/components/Live";
 import Navbar from "@/components/Navbar";
 import RightSidebar from "@/components/RightSidebar";
-import { handleCanvasMouseDown, handleResize, initializeFabric } from "@/lib/canvas";
+import { handleCanvasMouseDown, handleCanvasMouseUp, handleCanvaseMouseMove, handleResize, initializeFabric } from "@/lib/canvas";
 import { ActiveElement } from "@/types/type";
+import { useMutation, useStorage } from "@/liveblocks.config";
 
 export default function Page() {
 
@@ -16,6 +17,21 @@ export default function Page() {
     const isDrawing = useRef(false)
     const shapeRef = useRef<fabric.Object | null>(null)
     const selectedShapeRef = useRef<string | null>('rectangle') 
+    const activeObjectRef = useRef<fabric.Object | null>(null) 
+
+    const canvasObjects = useStorage((root) => root.canvasObject)
+    const syncShapeInStorage = useMutation(({ storage }, object) => {
+        if (!object) return
+
+        const { objectId } = object 
+
+        const shapeData = object.toJSON()
+        shapeData.objectId = objectId
+
+        const canvasObjects = storage.get('canvasObject')
+
+        canvasObjects.set(objectId, shapeData)
+    }, [])
 
     const [activeElement, setActiveElement] = useState<ActiveElement>({
         name: '',
@@ -39,6 +55,29 @@ export default function Page() {
                 canvas,
                 shapeRef,
                 selectedShapeRef
+            })
+        })
+
+        canvas.on('mouse:move', function(options) {
+            handleCanvaseMouseMove({
+                options,
+                isDrawing,
+                canvas,
+                shapeRef,
+                selectedShapeRef,
+                syncShapeInStorage
+            })
+        })
+
+        canvas.on('mouse:up', function(options) {
+            handleCanvasMouseUp({
+                activeObjectRef,
+                canvas,
+                isDrawing,
+                shapeRef,
+                selectedShapeRef,
+                syncShapeInStorage,
+                setActiveElement
             })
         })
 
