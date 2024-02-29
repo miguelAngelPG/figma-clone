@@ -76,6 +76,7 @@ export default function Page() {
             case 'delete':
                 handleDelete(fabricRef.current as any, deleteShapeFromStorage)
                 setActiveElement(defaultNavElement)
+                break
             case 'image': 
                 imageInputRef.current?.click()
                 isDrawing.current = false
